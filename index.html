@@ -181,35 +181,8 @@
       });
     }
     
-    
   
-  window.onload = () => {
-    if (window.Telegram && Telegram.WebApp) {
-      const BackButton = Telegram.WebApp.BackButton;
-      BackButton.show();
-
-      const currentPath = window.location.pathname;
-      const urlParams = new URLSearchParams(window.location.search);
-      const userId = urlParams.get('user_id');
-      const username = urlParams.get('username');
-
-      // اگر در صفحه اصلی هستیم
-      if (currentPath.endsWith('index.html') || currentPath === '/' || currentPath === '') {
-        BackButton.setText("❌ Exit");
-        BackButton.onClick(() => {
-          Telegram.WebApp.close();
-        });
-      } 
-      // اگر در صفحه جزئیات هستیم
-      else {
-        BackButton.setText("⬅️ Back");
-        BackButton.onClick(() => {
-          const queryString = userId && username ? `?user_id=${userId}&username=${username}` : '';
-          window.location.href = `index.html${queryString}`;
-        });
-      }
-    }
-  };
   </script>
 </body>
 </html>
+
