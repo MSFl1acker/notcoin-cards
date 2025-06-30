@@ -97,102 +97,90 @@
     <p class="error-message" id="accessError" style="display:none;">❌ Access is only allowed via Telegram bot.</p>
   </div>
 
- <script>
-  window.Telegram.WebApp.ready();
-  const tg = window.Telegram.WebApp;
+  <script>
+    window.Telegram.WebApp.ready();
+    const tg = window.Telegram.WebApp;
 
-  tg.expand();
-  tg.setBackgroundColor('#000000');
+    tg.expand();
+    tg.setBackgroundColor('#000000');
 
-  const initDataUnsafe = tg.initDataUnsafe;
+    const initDataUnsafe = tg.initDataUnsafe;
 
-  if (!initDataUnsafe || !initDataUnsafe.user || !initDataUnsafe.user.id) {
-    document.getElementById('accessError').style.display = 'block';
-  } else {
-    const userId = initDataUnsafe.user.id;
-    const username = initDataUnsafe.user.username || 'unknown';
-    loadCards(userId, username);
-  }
+    if (!initDataUnsafe || !initDataUnsafe.user || !initDataUnsafe.user.id) {
+      document.getElementById('accessError').style.display = 'block';
+    } else {
+      const userId = initDataUnsafe.user.id;
+      const username = initDataUnsafe.user.username || 'unknown';
+      loadCards(userId, username);
+    }
 
-  async function loadCards(userId, username) {
-    try {
-      const response = await fetch('./cards.json');
-      const cards = await response.json();
+    async function loadCards(userId, username) {
+      try {
+        const response = await fetch('./cards.json');
+        const cards = await response.json();
 
-      const cardGrid = document.createElement('div');
-      cardGrid.className = 'card-grid';
-      cardGrid.id = 'cardGrid';
+        const cardGrid = document.createElement('div');
+        cardGrid.className = 'card-grid';
+        cardGrid.id = 'cardGrid';
 
-      const searchWrapper = document.createElement('div');
-      searchWrapper.className = 'search-wrapper';
-      searchWrapper.innerHTML = `
-        <input type="search" class="search-bar" placeholder="Search Collectible Cards" oninput="filterCards(this.value)">
-        <img class="search-icon" src="https://cdn-icons-png.flaticon.com/512/622/622669.png" alt="Search">
-      `;
-
-      const container = document.getElementById('mainContainer');
-      container.innerHTML = '';
-      container.appendChild(searchWrapper);
-      container.appendChild(cardGrid);
-
-      cards.forEach(card => {
-        const cardElement = document.createElement('div');
-        cardElement.className = 'card';
-        cardElement.setAttribute('data-name', card.id.toLowerCase());
-
-        const formattedPrice = card.price ? formatPrice(card.price) + ' TON' : 'Free';
-        cardElement.innerHTML = `
-          <div class="price-tag">${formattedPrice}</div>
-          <img src="${card.image}" alt="${card.name}">
-          <div class="name">${card.name}</div>
-          <div class="rarity ${card.rarity}">${card.rarity}</div>
+        const searchWrapper = document.createElement('div');
+        searchWrapper.className = 'search-wrapper';
+        searchWrapper.innerHTML = `
+          <input type="search" class="search-bar" placeholder="Search Collectible Cards" oninput="filterCards(this.value)">
+          <img class="search-icon" src="https://cdn-icons-png.flaticon.com/512/622/622669.png" alt="Search">
         `;
 
-        cardElement.addEventListener('click', () => {
-          window.location.href = `card-details.html?card=${encodeURIComponent(card.id)}&user_id=${encodeURIComponent(userId)}&username=${encodeURIComponent(username)}`;
+        const container = document.getElementById('mainContainer');
+        container.innerHTML = '';
+        container.appendChild(searchWrapper);
+        container.appendChild(cardGrid);
+
+        cards.forEach(card => {
+          const cardElement = document.createElement('div');
+          cardElement.className = 'card';
+          cardElement.setAttribute('data-name', card.id.toLowerCase());
+
+          const formattedPrice = card.price ? formatPrice(card.price) + ' TON' : 'Free';
+          cardElement.innerHTML = `
+            <div class="price-tag">${formattedPrice}</div>
+            <img src="${card.image}" alt="${card.name}">
+            <div class="name">${card.name}</div>
+            <div class="rarity ${card.rarity}">${card.rarity}</div>
+          `;
+
+          cardElement.addEventListener('click', () => {
+            window.location.href = `card-details.html?card=${encodeURIComponent(card.id)}&user_id=${encodeURIComponent(userId)}&username=${encodeURIComponent(username)}`;
+          });
+
+          cardGrid.appendChild(cardElement);
         });
 
-        cardGrid.appendChild(cardElement);
-      });
-
-    } catch (error) {
-      console.error('Error loading cards:', error);
-      document.getElementById('mainContainer').innerHTML = '<p class="error-message">Failed to load cards. Please try again later.</p>';
+      } catch (error) {
+        console.error('Error loading cards:', error);
+        document.getElementById('mainContainer').innerHTML = '<p class="error-message">Failed to load cards. Please try again later.</p>';
+      }
     }
-  }
 
-  function formatPrice(price) {
-    price = Number(price);
-    if (price >= 1_000_000) {
-      return (price / 1_000_000).toFixed(price % 1_000_000 === 0 ? 0 : 1) + 'M';
-    } else if (price >= 1_000) {
-      return (price / 1_000).toFixed(price % 1_000 === 0 ? 0 : 1) + 'K';
-    } else {
-      return price.toString();
+    function formatPrice(price) {
+      price = Number(price);
+      if (price >= 1_000_000) {
+        return (price / 1_000_000).toFixed(price % 1_000_000 === 0 ? 0 : 1) + 'M';
+      } else if (price >= 1_000) {
+        return (price / 1_000).toFixed(price % 1_000 === 0 ? 0 : 1) + 'K';
+      } else {
+        return price.toString();
+      }
     }
-  }
 
-  function filterCards(query) {
-    query = query.toLowerCase();
-    const cards = document.querySelectorAll('#cardGrid .card');
-    cards.forEach(card => {
-      const name = card.getAttribute('data-name');
-      card.style.display = name.includes(query) ? 'block' : 'none';
-    });
-  }
-
-  // تنظیم دکمه خروج فقط برای index.html
-  window.onload = () => {
-    if (window.Telegram && Telegram.WebApp) {
-      const BackButton = Telegram.WebApp.BackButton;
-      BackButton.setText("❌ Exit");
-      BackButton.show();
-      BackButton.onClick(() => {
-        Telegram.WebApp.close();
+    function filterCards(query) {
+      query = query.toLowerCase();
+      const cards = document.querySelectorAll('#cardGrid .card');
+      cards.forEach(card => {
+        const name = card.getAttribute('data-name');
+        card.style.display = name.includes(query) ? 'block' : 'none';
       });
     }
-  };
-</script>
+  </script>
 </body>
 </html>
 
