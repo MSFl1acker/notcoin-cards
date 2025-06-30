@@ -10,7 +10,7 @@
     "game": "Notcoin",
     "collection": "Epic Legends",
     "type": "Collectible Cards",
-    "issued": 1000
+    "issued": 27037
   },
   {
     "id": "cny",
@@ -21,9 +21,9 @@
     "price": 10,
     "available": 5,
     "game": "Notcoin",
-    "collection": "Festive Series",
+    "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 5000
+    "issued": 38720
   },
   {
     "id": "fallout",
@@ -31,12 +31,12 @@
     "rarity": "Epic",
     "image": "https://not-platform-dev.fra1.cdn.digitaloceanspaces.com/item/1314e2d6-099c-460c-9841-37aacf297db8.png",
     "description": "Inspired by post-apocalyptic adventures.",
-    "price": 0.9,
+    "price": 1.1,
     "available": 7,
     "game": "Notcoin",
-    "collection": "Wasteland Warriors",
+    "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 3000
+    "issued": 51185
   },
   {
     "id": "telegram",
@@ -44,12 +44,12 @@
     "rarity": "Epic",
     "image": "https://not-platform-dev.fra1.cdn.digitaloceanspaces.com/item/ac4e1ae2-c6e3-4f98-8d68-0118c6a9189e.png",
     "description": "A tribute to the messaging platform.",
-    "price": 0.7,
+    "price": 1.3,
     "available": 10,
     "game": "Notcoin",
-    "collection": "Digital Pioneers",
+    "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 4000
+    "issued": 45661
   },
   {
     "id": "galleon",
@@ -57,12 +57,12 @@
     "rarity": "Rare",
     "image": "https://not-platform-dev.fra1.cdn.digitaloceanspaces.com/item/ab0d47de-b73c-4d2b-b61a-6f4d5a8af0c3.png",
     "description": "A ship of treasure and adventure.",
-    "price": 0.5,
+    "price": 0.26,
     "available": 15,
     "game": "Notcoin",
-    "collection": "Pirate Saga",
+    "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 10000
+    "issued": 118471
   },
   {
     "id": "cookie",
@@ -71,7 +71,7 @@
     "image": "https://not-platform-dev.fra1.cdn.digitaloceanspaces.com/item/64cb6c43-f629-4ca9-9ded-d139aebecf57.png",
     "description": "Mined during the snack-time phase. Can be used for crafting.",
     "price": 0.3,
-    "available": 10,
+    "available": 15,
     "game": "Notcoin",
     "collection": "Player Zeroes",
     "type": "Collectible Cards",
@@ -83,12 +83,12 @@
     "rarity": "Rare",
     "image": "https://not-platform-dev.fra1.cdn.digitaloceanspaces.com/item/586fdbc7-05ad-44c2-8c49-ff9b1e3c33f6.png",
     "description": "A celestial event captured in a card.",
-    "price": 0.4,
-    "available": 12,
+    "price": 0.25,
+    "available": 22,
     "game": "Notcoin",
-    "collection": "Cosmic Wonders",
+    "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 15000
+    "issued": 136654
   },
   {
     "id": "catharsis",
@@ -96,12 +96,12 @@
     "rarity": "Rare",
     "image": "https://not-platform-dev.fra1.cdn.digitaloceanspaces.com/item/f4120949-58bd-47f0-9e68-6bb226c62ae5.png",
     "description": "A card of emotional release.",
-    "price": 0.35,
-    "available": 11,
+    "price": 0.24,
+    "available": 23,
     "game": "Notcoin",
-    "collection": "Inner Journey",
+    "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 12000
+    "issued": 105291
   },
   {
     "id": "pizza",
@@ -109,12 +109,12 @@
     "rarity": "Common",
     "image": "https://not-platform-dev.fra1.cdn.digitaloceanspaces.com/item/7c8b0129-ed95-4a75-a996-c19cc97ee743.png",
     "description": "A slice of cheesy goodness.",
-    "price": 0.1,
+    "price": 0.13,
     "available": 50,
     "game": "Notcoin",
-    "collection": "Foodie Favorites",
+    "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 100000
+    "issued": 355514
   },
   {
     "id": "diamond",
@@ -122,12 +122,12 @@
     "rarity": "Common",
     "image": "https://not-platform-dev.fra1.cdn.digitaloceanspaces.com/item/53d11d8f-1b1f-4f7e-b19d-273925e98690.png",
     "description": "Shiny and valuable, but common.",
-    "price": 0.15,
+    "price": 0.12,
     "available": 40,
     "game": "Notcoin",
-    "collection": "Gemstone Series",
+    "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 80000
+    "issued": 380839
   },
   {
     "id": "learn",
@@ -138,8 +138,8 @@
     "price": 0.12,
     "available": 45,
     "game": "Notcoin",
-    "collection": "Wisdom Path",
+    "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 90000
+    "issued": 315202
   }
 ]
