@@ -114,6 +114,26 @@
   </div>
 
   <script>
+    // Telegram WebApp initialization
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if Telegram WebApp is available
+      if (window.Telegram && window.Telegram.WebApp) {
+        const webApp = Telegram.WebApp;
+        
+        // Enable the back button
+        webApp.BackButton.show();
+        
+        // Handle back button click
+        webApp.BackButton.onClick(function() {
+          // Close the WebApp and return to the bot
+          webApp.close();
+        });
+        
+        // Expand the WebApp to full view
+        webApp.expand();
+      }
+    });
+
     let currentCard = null;
     let userId = null;
     let username = null;
