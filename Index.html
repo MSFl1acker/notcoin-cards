@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Collectible Cards in Notcoin</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+    }
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+      margin-bottom: 30px;
+    }
+    .search-bar {
+      width: 100%;
+      padding: 10px 15px 10px 40px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      background-color: #111;
+      color: #fff;
+      box-sizing: border-box;
+    }
+    .search-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 15px;
+      pointer-events: none;
+      filter: brightness(0) invert(0.5);
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+    }
+    .card {
+      background-color: #111;
+      padding: 10px;
+      border-radius: 12px;
+      text-align: center;
+      transition: 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+    .card img {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .name {
+      margin-top: 8px;
+      font-weight: bold;
+    }
+    .rarity {
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    .Legendary { color: gold; }
+    .Epic { color: #9c27b0; }
+    .Rare { color: #2196f3; }
+    .Common { color: #aaa; }
+    .price-tag {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background-color: #ff9800;
+      color: #000;
+      padding: 2px 6px;
+      font-size: 12px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .error-message {
+      text-align: center;
+      color: red;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="mainContainer">
+    <p class="error-message" id="accessError" style="display:none;">❌ Access is only allowed via Telegram bot.</p>
+  </div>
+
+  <script>
+    window.Telegram.WebApp.ready();
+    const tg = window.Telegram.WebApp;
+    const initDataUnsafe = tg.initDataUnsafe;
+
+    if (!initDataUnsafe || !initDataUnsafe.user || !initDataUnsafe.user.id) {
+      document.getElementById('accessError').style.display = 'block';
+    } else {
+      const userId = initDataUnsafe.user.id;
+      const username = initDataUnsafe.user.username || 'unknown';
+      loadCards(userId, username);
+    }
+
+    async function loadCards(userId, username) {
+      try {
+        const response = await fetch('./cards.json');
+        const cards = await response.json();
+
+        const cardGrid = document.createElement('div');
+        cardGrid.className = 'card-grid';
+        cardGrid.id = 'cardGrid';
+
+        const searchWrapper = document.createElement('div');
+        searchWrapper.className = 'search-wrapper';
+        searchWrapper.innerHTML = `
+          <input type="search" class="search-bar" placeholder="Search Collectible Cards" oninput="filterCards(this.value)">
+          <img class="search-icon" src="https://cdn-icons-png.flaticon.com/512/622/622669.png" alt="Search">
+        `;
+
+        const container = document.getElementById('mainContainer');
+        container.innerHTML = '';
+        container.appendChild(searchWrapper);
+        container.appendChild(cardGrid);
+
+        cards.forEach(card => {
+          const cardElement = document.createElement('div');
+          cardElement.className = 'card';
+          cardElement.setAttribute('data-name', card.id.toLowerCase());
+
+          const formattedPrice = card.price ? formatPrice(card.price) + ' TON' : 'Free';
+          cardElement.innerHTML = `
+            <div class="price-tag">${formattedPrice}</div>
+            <img src="${card.image}" alt="${card.name}">
+            <div class="name">${card.name}</div>
+            <div class="rarity ${card.rarity}">${card.rarity}</div>
+          `;
+
+          cardElement.addEventListener('click', () => {
+            window.location.href = `card-details.html?card=${encodeURIComponent(card.id)}&user_id=${encodeURIComponent(userId)}&username=${encodeURIComponent(username)}`;
+          });
+
+          cardGrid.appendChild(cardElement);
+        });
+
+      } catch (error) {
+        console.error('Error loading cards:', error);
+        document.getElementById('mainContainer').innerHTML = '<p class="error-message">Failed to load cards. Please try again later.</p>';
+      }
+    }
+
+    function formatPrice(price) {
+      price = Number(price);
+      if (price >= 1_000_000) {
+        return (price / 1_000_000).toFixed(price % 1_000_000 === 0 ? 0 : 1) + 'M';
+      } else if (price >= 1_000) {
+        return (price / 1_000).toFixed(price % 1_000 === 0 ? 0 : 1) + 'K';
+      } else {
+        return price.toString();
+      }
+    }
+
+    function filterCards(query) {
+      query = query.toLowerCase();
+      const cards = document.querySelectorAll('#cardGrid .card');
+      cards.forEach(card => {
+        const name = card.getAttribute('data-name');
+        card.style.display = name.includes(query) ? 'block' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
