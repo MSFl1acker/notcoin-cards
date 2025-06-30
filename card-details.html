@@ -220,15 +220,24 @@
 
     if (window.Telegram && Telegram.WebApp) {
       const BackButton = Telegram.WebApp.BackButton;
+
+      // فقط در این صفحه دکمه Back را فعال می‌کنیم
       BackButton.show();
 
       BackButton.onClick(() => {
-        // ✅ بازگشت به صفحه‌ی قبلی با حفظ user_id و username
         const params = new URLSearchParams({
           user_id: userId,
           username: username
         });
         window.location.href = `index.html?${params.toString()}`;
+
+        // پنهان‌سازی BackButton هنگام برگشت
+        BackButton.hide();
+      });
+
+      // اگر کاربر با روش دیگر از این صفحه خارج شد، دکمه را مخفی کن
+      window.addEventListener('beforeunload', () => {
+        BackButton.hide();
       });
     }
   };
