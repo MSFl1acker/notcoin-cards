@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Collectible Cards in Notcoin</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="theme-color" content="#000000" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
       background-color: #000;
@@ -98,6 +99,9 @@
   </div>
 
   <script>
+    
+      Telegram.WebApp.ready(); // اعلام آمادگی
+      Telegram.WebApp.setHeaderColor('bg_color');
     window.Telegram.WebApp.ready();
     const tg = window.Telegram.WebApp;
 
