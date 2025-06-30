@@ -18,16 +18,11 @@
       width: 100%;
       max-width: 800px;
     }
-
     .search-wrapper {
       position: relative;
       width: 100%;
-      margin-top: 20px;
-      margin-bottom: 20px;
-      padding: 0 15px;
-      box-sizing: border-box;
+      margin-bottom: 30px;
     }
-
     .search-bar {
       width: 100%;
       padding: 10px 15px 10px 40px;
@@ -38,31 +33,22 @@
       background-color: #111;
       color: #fff;
       box-sizing: border-box;
-      transition: background-color 0.3s ease;
     }
-
-    .search-bar:focus {
-      background-color: #1c1c1c;
-    }
-
     .search-icon {
       position: absolute;
-      left: 25px;
+      left: 15px;
       top: 50%;
       transform: translateY(-50%);
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
       pointer-events: none;
       filter: brightness(0) invert(0.5);
-      opacity: 0.7;
     }
-
     .card-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
       gap: 10px;
     }
-
     .card {
       background-color: #111;
       padding: 10px;
@@ -72,27 +58,22 @@
       cursor: pointer;
       position: relative;
     }
-
     .card img {
       width: 100%;
       border-radius: 10px;
     }
-
     .name {
       margin-top: 8px;
       font-weight: bold;
     }
-
     .rarity {
       font-size: 14px;
       margin-top: 4px;
     }
-
     .Legendary { color: gold; }
     .Epic { color: #9c27b0; }
     .Rare { color: #2196f3; }
     .Common { color: #aaa; }
-
     .price-tag {
       position: absolute;
       top: 8px;
@@ -104,7 +85,6 @@
       border-radius: 6px;
       font-weight: bold;
     }
-
     .error-message {
       text-align: center;
       color: red;
@@ -120,6 +100,7 @@
   <script>
     window.Telegram.WebApp.ready();
     const tg = window.Telegram.WebApp;
+
     tg.expand();
     tg.setBackgroundColor('#000000');
 
@@ -145,7 +126,7 @@
         const searchWrapper = document.createElement('div');
         searchWrapper.className = 'search-wrapper';
         searchWrapper.innerHTML = `
-          <input type="search" class="search-bar" placeholder="Search Collectible Cards">
+          <input type="search" class="search-bar" placeholder="Search Collectible Cards" oninput="filterCards(this.value)">
           <img class="search-icon" src="https://cdn-icons-png.flaticon.com/512/622/622669.png" alt="Search">
         `;
 
@@ -153,11 +134,6 @@
         container.innerHTML = '';
         container.appendChild(searchWrapper);
         container.appendChild(cardGrid);
-
-        const searchInput = searchWrapper.querySelector('.search-bar');
-        searchInput.addEventListener('input', (e) => {
-          filterCards(e.target.value);
-        });
 
         cards.forEach(card => {
           const cardElement = document.createElement('div');
@@ -204,9 +180,7 @@
         card.style.display = name.includes(query) ? 'block' : 'none';
       });
     }
-
-    
-    window.filterCards = filterCards;
   </script>
 </body>
 </html>
+
