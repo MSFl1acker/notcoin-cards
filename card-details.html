@@ -118,167 +118,81 @@
   let currentCard = null;
   let userId = null;
   let username = null;
-  let tgWebApp = null;
-  let isTelegram = false;
 
-  // تابع تشخیص محیط اجرا
-  function detectEnvironment() {
-    if (window.Telegram && Telegram.WebApp) {
-      tgWebApp = Telegram.WebApp;
-      isTelegram = true;
-      tgWebApp.expand();
-      tgWebApp.enableClosingConfirmation();
-      setupBackButton();
-    }
-  }
-
-  // تنظیم دکمه بازگشت
-  function setupBackButton() {
-    if (!isTelegram) return;
-    
-    tgWebApp.BackButton.show();
-    tgWebApp.BackButton.onClick(handleBackAction);
-    tgWebApp.onEvent('backButtonClicked', handleBackAction);
-  }
-
-  // مدیریت عمل بازگشت
-  function handleBackAction() {
-    if (isTelegram) {
-      // در محیط تلگرام از روش جایگزین استفاده می‌کنیم
-      const returnUrl = buildReturnUrl();
-      window.location.href = returnUrl;
-    } else {
-      // در مرورگر معمولی
-      if (window.history.length > 1) {
-        window.history.back();
-      } else {
-        window.location.href = 'index.html';
-      }
-    }
-  }
-
-  // ساخت URL برای بازگشت
-  function buildReturnUrl() {
-    const currentUrl = new URL(window.location.href);
-    const baseUrl = currentUrl.origin + currentUrl.pathname.replace('card.html', 'index.html');
-    return `${baseUrl}?user_id=${userId}&username=${username}`;
-  }
-
-  // بارگذاری اطلاعات کارت
   async function loadCardDetails() {
     try {
-      detectEnvironment();
-      
       const urlParams = new URLSearchParams(window.location.search);
       const cardId = urlParams.get('card');
       userId = urlParams.get('user_id');
       username = urlParams.get('username');
 
       if (!userId || !username) {
-        showError('❌ تنها از طریق ربات تلگرام قابل دسترسی است');
+        document.getElementById('mainContainer').innerHTML = '<p class="error-message">❌ Access is only allowed via Telegram bot.</p>';
         return;
       }
 
-      // داده‌های تستی جایگزین cards.json
-      const cards = [
-        {
-          id: '1',
-          name: 'Notcoin Gold',
-          image: 'https://via.placeholder.com/150',
-          description: 'Special edition golden card',
-          available: 10,
-          price: 5.99,
-          game: 'Notcoin',
-          collection: 'Premium',
-          rarity: 'Legendary',
-          type: 'Digital',
-          issued: '2023'
-        }
-      ];
-      
+      const response = await fetch('./cards.json');
+      const cards = await response.json();
       currentCard = cards.find(c => c.id === cardId);
+
       if (!currentCard) {
-        showError('کارت مورد نظر یافت نشد');
+        document.getElementById('mainContainer').innerHTML = '<p class="error-message">Card not found.</p>';
         return;
       }
 
-      renderCard();
-      setupEventListeners();
+      document.getElementById('mainContainer').innerHTML = `
+        <div class="card-box">  
+          <img src="${currentCard.image}" alt="${currentCard.name}">  
+          <div class="card-title">${currentCard.name} #${Math.floor(Math.random() * 100000)}</div>  
+          <div class="card-desc">${currentCard.description}</div>  
+          <div class="buy-controls">  
+            <span style="font-size: 13px; color: #ccc;">Select quantity to buy:</span>  
+            <select id="quantitySelect" class="select-quantity"></select>  
+          </div>  
+          <button id="buyButton" class="buy-btn"></button>  
+        </div>  
+        <div class="details-box">  
+          <table>  
+            <tr><td class="label">Available</td><td class="value">${currentCard.available}</td></tr>  
+            <tr><td class="label">Game</td><td class="value">${currentCard.game}</td></tr>  
+            <tr><td class="label">Collection</td><td class="value">${currentCard.collection}</td></tr>  
+            <tr><td class="label">Rarity</td><td class="value ${currentCard.rarity}">${currentCard.rarity}</td></tr>  
+            <tr><td class="label">Type</td><td class="value">${currentCard.type}</td></tr>  
+            <tr><td class="label">Issued</td><td class="value">${currentCard.issued}</td></tr>  
+          </table>  
+        </div>
+      `;
+
+      const select = document.getElementById('quantitySelect');
+      for (let i = 1; i <= currentCard.available; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        select.appendChild(option);
+      }
+
+      const button = document.getElementById('buyButton');
+      select.addEventListener('change', function () {
+        const qty = parseInt(this.value);
+        const total = (qty * currentCard.price).toFixed(2);
+        button.textContent = `Buy for ${total} TON`;
+      });
+
+      select.value = 1;
+      select.dispatchEvent(new Event('change'));
+
+      button.addEventListener('click', () => {
+        const qty = parseInt(select.value);
+        const total = (qty * currentCard.price).toFixed(2);
+        showConfirmModal(currentCard.name, currentCard.description, qty, total, userId, username);
+      });
 
     } catch (error) {
-      console.error('خطا در بارگذاری:', error);
-      showError('خطا در بارگذاری اطلاعات');
+      console.error('Error loading card details:', error);
+      document.getElementById('mainContainer').innerHTML = '<p class="error-message">Failed to load card details. Please try again later.</p>';
     }
   }
 
-  // نمایش خطا
-  function showError(message) {
-    document.getElementById('mainContainer').innerHTML = `
-      <div class="error-message">${message}</div>
-      <button onclick="handleBackAction()" class="buy-btn" style="margin-top:20px;">
-        بازگشت به صفحه اصلی
-      </button>
-    `;
-  }
-
-  // رندر کارت
-  function renderCard() {
-    document.getElementById('mainContainer').innerHTML = `
-      <div class="card-box">
-        <img src="${currentCard.image}" alt="${currentCard.name}">
-        <div class="card-title">${currentCard.name} #${Math.floor(Math.random() * 100000)}</div>
-        <div class="card-desc">${currentCard.description}</div>
-        <div class="buy-controls">
-          <span style="font-size: 13px; color: #ccc;">Select quantity to buy:</span>
-          <select id="quantitySelect" class="select-quantity"></select>
-        </div>
-        <button id="buyButton" class="buy-btn"></button>
-      </div>
-      <div class="details-box">
-        <table>
-          <tr><td class="label">Available</td><td class="value">${currentCard.available}</td></tr>
-          <tr><td class="label">Game</td><td class="value">${currentCard.game}</td></tr>
-          <tr><td class="label">Collection</td><td class="value">${currentCard.collection}</td></tr>
-          <tr><td class="label">Rarity</td><td class="value ${currentCard.rarity}">${currentCard.rarity}</td></tr>
-          <tr><td class="label">Type</td><td class="value">${currentCard.type}</td></tr>
-          <tr><td class="label">Issued</td><td class="value">${currentCard.issued}</td></tr>
-        </table>
-      </div>
-    `;
-  }
-
-  // تنظیم رویدادها
-  function setupEventListeners() {
-    const select = document.getElementById('quantitySelect');
-    const button = document.getElementById('buyButton');
-
-    // پر کردن انتخاب تعداد
-    for (let i = 1; i <= currentCard.available; i++) {
-      const option = document.createElement('option');
-      option.value = i;
-      option.textContent = i;
-      select.appendChild(option);
-    }
-
-    // محاسبه قیمت هنگام تغییر تعداد
-    select.addEventListener('change', function() {
-      const qty = parseInt(this.value);
-      const total = (qty * currentCard.price).toFixed(2);
-      button.textContent = `Buy for ${total} TON`;
-    });
-
-    select.value = 1;
-    select.dispatchEvent(new Event('change'));
-
-    // کلیک روی دکمه خرید
-    button.addEventListener('click', () => {
-      const qty = parseInt(select.value);
-      const total = (qty * currentCard.price).toFixed(2);
-      showConfirmModal(currentCard.name, currentCard.description, qty, total, userId, username);
-    });
-  }
-
-  // نمایش مودال تایید
   function showConfirmModal(cardName, cardDesc, quantity, totalPrice, userId, username) {
     const modal = document.getElementById('confirmModal');
     document.getElementById('modalCardName').textContent = `Card: ${cardName}`;
@@ -301,36 +215,22 @@
     };
   }
 
-  // راه‌اندازی اولیه
-  window.onload = function() {
-    // ایجاد المان‌های مورد نیاز اگر وجود ندارند
-    if (!document.getElementById('confirmModal')) {
-      document.body.innerHTML += `
-        <div id="confirmModal" class="modal">
-          <div class="modal-content">
-            <h2>Confirm Purchase</h2>
-            <p id="modalCardName"></p>
-            <p id="modalCardDesc"></p>
-            <p id="modalQuantity"></p>
-            <p id="modalTotalPrice"></p>
-            <p id="modalUserId"></p>
-            <p id="modalUsername"></p>
-            <div class="modal-buttons">
-              <button id="confirmPurchase" class="modal-btn confirm-btn">
-                Confirm <span id="loadingSpinner" class="loading" style="display:none;"></span>
-              </button>
-              <button id="cancelPurchase" class="modal-btn cancel-btn">Cancel</button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    if (!document.getElementById('mainContainer')) {
-      document.body.innerHTML = '<div class="container" id="mainContainer"></div>' + document.body.innerHTML;
-    }
-
+  window.onload = () => {
     loadCardDetails();
+
+    if (window.Telegram && Telegram.WebApp) {
+      const BackButton = Telegram.WebApp.BackButton;
+      BackButton.show();
+
+      BackButton.onClick(() => {
+        // ✅ بازگشت به صفحه‌ی قبلی با حفظ user_id و username
+        const params = new URLSearchParams({
+          user_id: userId,
+          username: username
+        });
+        window.location.href = `index.html?${params.toString()}`;
+      });
+    }
   };
 </script>
 </body>
