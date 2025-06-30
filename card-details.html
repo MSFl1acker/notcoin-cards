@@ -216,6 +216,15 @@
     }
 
     window.onload = loadCardDetails;
+    document.addEventListener('DOMContentLoaded', function () {
+    if (window.Telegram && Telegram.WebApp && Telegram.WebApp.BackButton) {
+        Telegram.WebApp.BackButton.show();
+
+        Telegram.WebApp.BackButton.onClick(() => {
+            window.history.back();
+        });
+    }
+});
   </script>
 </body>
 </html>
