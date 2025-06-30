@@ -24,26 +24,43 @@
       margin-bottom: 30px;
     }
     .search-bar {
-      width: 100%;
-      padding: 10px 15px 10px 40px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      background-color: #111;
-      color: #fff;
-      box-sizing: border-box;
-    }
-    .search-icon {
-      position: absolute;
-      left: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 15px;
-      height: 15px;
-      pointer-events: none;
-      filter: brightness(0) invert(0.5);
-    }
+    .search-wrapper {
+  position: relative;
+  width: 100%;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  padding: 0 15px;
+  box-sizing: border-box;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 10px 15px 10px 40px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background-color: #111;
+  color: #fff;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease;
+}
+
+.search-bar:focus {
+  background-color: #1c1c1c;
+}
+
+.search-icon {
+  position: absolute;
+  left: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  filter: brightness(0) invert(0.5);
+  opacity: 0.7;
+}
     .card-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
