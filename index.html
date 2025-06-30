@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Collectible Cards in Notcoin</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
@@ -10,6 +10,7 @@
       color: #fff;
       font-family: sans-serif;
       padding: 10px;
+      margin: 0;
       display: flex;
       justify-content: center;
     }
@@ -99,6 +100,10 @@
   <script>
     window.Telegram.WebApp.ready();
     const tg = window.Telegram.WebApp;
+
+    tg.expand();
+    tg.setBackgroundColor('#000000');
+
     const initDataUnsafe = tg.initDataUnsafe;
 
     if (!initDataUnsafe || !initDataUnsafe.user || !initDataUnsafe.user.id) {
