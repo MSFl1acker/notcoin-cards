@@ -3,219 +3,184 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Notcoin Card Details</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    body { background-color: #000; color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
-    .container { display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
-    .card-box {
-      background-color: #1c1c1e;
-      border-radius: 18px;
-      width: 90%; max-width: 400px;
-      box-shadow: 0 0 12px rgba(255,255,255,0.05);
-      overflow: hidden; text-align: center;
-      padding-bottom: 20px;
-    }
-    .card-box img { width: 45%; display: block; margin: 20px auto 0; }
-    .card-title { font-size: 22px; font-weight: 600; margin: 16px 0 6px; }
-    .card-desc { font-size: 14px; color: #aaa; margin-bottom: 16px; }
-    .buy-controls {
-      display: flex; flex-direction: column;
-      align-items: center; gap: 10px; margin-bottom: 16px;
-    }
-    .select-quantity {
-      padding: 8px 12px; border-radius: 8px; font-size: 14px;
-      background-color: #2c2c2e; color: white;
-      border: none; width: 120px; text-align: center;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23ccc' d='M2 0L0 2h4L2 0zM2 5L0 3h4L2 5z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 8px center;
-      background-size: 10px; padding-right: 24px;
-      appearance: none; -webkit-appearance: none; -moz-appearance: none;
-      font-weight: bold;
-    }
-    .buy-btn {
-      width: 80%; background-color: #00aaff; color: white;
-      padding: 12px 20px; font-size: 15px; font-weight: 600;
-      border: none; border-radius: 12px; cursor: pointer;
-    }
-    .buy-btn:hover { background-color: #008ecc; }
-    .details-box {
-      background-color: #1c1c1e;
-      border-radius: 18px; width: 80%; max-width: 400px;
-      margin-top: 20px; padding: 20px;
-      box-shadow: 0 0 12px rgba(255,255,255,0.05);
-    }
-    table { width: 100%; border-collapse: collapse; }
-    td {
-      padding: 12px 0; border-top: 1px solid #333;
-      font-size: 14px;
-    }
-    tr:first-child td { border-top: none; }
-    .label { color: #999; text-align: left; }
-    .value { text-align: right; color: white; }
-    .Legendary { color: gold; }
-    .Epic { color: #9c27b0; }
-    .Rare { color: #2196f3; }
-    .Common { color: #aaa; }
-    .error-message {
-      text-align: center; color: red; font-size: 18px;
-    }
-    .modal {
-      display: none; position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
-      z-index: 1000; justify-content: center; align-items: center;
-    }
-    .modal-content {
-      background-color: #1c1c1e; border-radius: 12px; padding: 20px;
-      width: 80%; max-width: 400px; text-align: center;
-    }
-    .modal-content h2 { font-size: 20px; font-weight: 600; }
-    .modal-content p { font-size: 14px; color: #ccc; margin: 10px 0; }
-    .modal-buttons {
-      display: flex; justify-content: space-around; margin-top: 20px;
-    }
-    .modal-btn {
-      padding: 10px 20px; border: none;
-      border-radius: 8px; font-size: 14px; cursor: pointer;
-    }
-    .confirm-btn { background-color: #00aaff; color: white; }
-    .confirm-btn:hover { background-color: #008ecc; }
-    .cancel-btn { background-color: #555; color: white; }
-    .cancel-btn:hover { background-color: #444; }
-    .loading {
-      display: inline-block; width: 16px; height: 16px;
-      border: 3px solid #fff; border-radius: 50%;
-      border-top-color: transparent; animation: spin 1s linear infinite;
-      vertical-align: middle;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
+  <title>TON NFT Marketplace</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://unpkg.com/@tonconnect/sdk@latest"></script>
 </head>
 <body>
-  <div class="container" id="mainContainer"></div>
+  <div class="wallet-connect">
+    <button id="connectWalletBtn">🔌 Connect Wallet</button>
+    <p id="walletAddress"></p>
+  </div>
 
-  <div id="confirmModal" class="modal">
+  <div class="card-container" id="cardContainer"></div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal hidden">
     <div class="modal-content">
-      <h2>Confirm Purchase</h2>
-      <p id="modalCardName"></p>
-      <p id="modalCardDesc"></p>
-      <p id="modalQuantity"></p>
-      <p id="modalTotalPrice"></p>
-      <p id="modalUserId"></p>
-      <p id="modalUsername"></p>
-      <div class="modal-buttons">
-        <button id="confirmPurchase" class="modal-btn confirm-btn">
-          Confirm <span id="loadingSpinner" class="loading" style="display:none;"></span>
-        </button>
-        <button id="cancelPurchase" class="modal-btn cancel-btn">Cancel</button>
-      </div>
+      <span class="close" id="closeModal">&times;</span>
+      <h2 id="modalTitle"></h2>
+      <p id="modalPrice"></p>
+      <button id="confirmBtn">✅ Confirm Purchase</button>
     </div>
   </div>
 
   <script>
-    let currentCard = null;
-    let userId = null;
-    let username = null;
+    const cardsDataPath = './cards.json';
+    const recipientAddress = 'UQBaajZGLHM9bZivtch2jTw2tILBPIiQPIKOGL_nOlksI-YZ';
 
-    async function loadCardDetails() {
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const cardId = urlParams.get('card');
-        userId = urlParams.get('user_id');
-        username = urlParams.get('username');
+    const tonConnect = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: 'https://YOUR_DOMAIN/tonconnect-manifest.json',
+      buttonRootId: 'connectWalletBtn'
+    });
 
-        if (!userId || !username) {
-          document.getElementById('mainContainer').innerHTML = '<p class="error-message">❌ Access is only allowed via Telegram bot.</p>';
-          return;
-        }
+    let selectedCard = null;
 
-        const response = await fetch('./cards.json');
-        const cards = await response.json();
-        currentCard = cards.find(c => c.id === cardId);
-
-        if (!currentCard) {
-          document.getElementById('mainContainer').innerHTML = '<p class="error-message">Card not found.</p>';
-          return;
-        }
-
-        document.getElementById('mainContainer').innerHTML = `
-          <div class="card-box">
-            <img src="${currentCard.image}" alt="${currentCard.name}">
-            <div class="card-title">${currentCard.name} #${Math.floor(Math.random() * 100000)}</div>
-            <div class="card-desc">${currentCard.description}</div>
-            <div class="buy-controls">
-              <span style="font-size: 13px; color: #ccc;">Select quantity to buy:</span>
-              <select id="quantitySelect" class="select-quantity"></select>
-            </div>
-            <button id="buyButton" class="buy-btn"></button>
-          </div>
-          <div class="details-box">
-            <table>
-              <tr><td class="label">Available</td><td class="value">${currentCard.available}</td></tr>
-              <tr><td class="label">Game</td><td class="value">${currentCard.game}</td></tr>
-              <tr><td class="label">Collection</td><td class="value">${currentCard.collection}</td></tr>
-              <tr><td class="label">Rarity</td><td class="value ${currentCard.rarity}">${currentCard.rarity}</td></tr>
-              <tr><td class="label">Type</td><td class="value">${currentCard.type}</td></tr>
-              <tr><td class="label">Issued</td><td class="value">${currentCard.issued}</td></tr>
-            </table>
-          </div>
+    async function loadCards() {
+      const res = await fetch(cardsDataPath);
+      const cards = await res.json();
+      const container = document.getElementById('cardContainer');
+      cards.forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        cardDiv.innerHTML = `
+          <img src="${card.image}" alt="${card.name}" />
+          <h3>${card.name}</h3>
+          <p>${card.price} TON</p>
+          <button class="buyBtn">Buy</button>
         `;
+        cardDiv.querySelector('.buyBtn').onclick = () => openModal(card);
+        container.appendChild(cardDiv);
+      });
+    }
 
-        const select = document.getElementById('quantitySelect');
-        for (let i = 1; i <= currentCard.available; i++) {
-          const option = document.createElement('option');
-          option.value = i;
-          option.textContent = i;
-          select.appendChild(option);
-        }
+    function openModal(card) {
+      selectedCard = card;
+      document.getElementById('modalTitle').textContent = card.name;
+      document.getElementById('modalPrice').textContent = `Price: ${card.price} TON`;
+      document.getElementById('modal').classList.remove('hidden');
+    }
 
-        const button = document.getElementById('buyButton');
-        select.addEventListener('change', function () {
-          const qty = parseInt(this.value);
-          const total = (qty * currentCard.price).toFixed(2);
-          button.textContent = `Buy for ${total} TON`;
-        });
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+    }
 
-        select.value = 1;
-        select.dispatchEvent(new Event('change'));
+    document.getElementById('closeModal').onclick = closeModal;
 
-        button.addEventListener('click', () => {
-          const qty = parseInt(select.value);
-          const total = (qty * currentCard.price).toFixed(2);
-          showConfirmModal(currentCard.name, currentCard.description, qty, total, userId, username);
-        });
-      } catch (error) {
-        console.error('Error loading card details:', error);
-        document.getElementById('mainContainer').innerHTML = '<p class="error-message">Failed to load card details. Please try again later.</p>';
+    function textToBase64Comment(text) {
+      const encoder = new TextEncoder();
+      const bytes = encoder.encode(text);
+      const payload = new Uint8Array([0, bytes.length, ...bytes]); // Simple comment format (type: 0x00)
+      return btoa(String.fromCharCode(...payload));
+    }
+
+    document.getElementById('confirmBtn').onclick = async () => {
+      if (!selectedCard) return;
+
+      const tonNano = BigInt(parseFloat(selectedCard.price) * 1e9);
+      const comment = `Buy NFT: ${selectedCard.name} | Price: ${selectedCard.price} TON`;
+      const payloadBase64 = textToBase64Comment(comment);
+
+      const tx = {
+        validUntil: Math.floor(Date.now() / 1000) + 300,
+        messages: [
+          {
+            address: recipientAddress,
+            amount: tonNano.toString(),
+            payload: payloadBase64
+          }
+        ]
+      };
+
+      try {
+        await tonConnect.sendTransaction(tx);
+        alert('✅ Payment sent with comment!');
+        closeModal();
+      } catch (err) {
+        alert('❌ Payment failed.');
       }
-    }
+    };
 
-    function showConfirmModal(cardName, cardDesc, quantity, totalPrice, userId, username) {
-      const modal = document.getElementById('confirmModal');
-      document.getElementById('modalCardName').textContent = `Card: ${cardName}`;
-      document.getElementById('modalCardDesc').textContent = `Description: ${cardDesc}`;
-      document.getElementById('modalQuantity').textContent = `Quantity: ${quantity}`;
-      document.getElementById('modalTotalPrice').textContent = `Total Price: ${totalPrice} TON`;
-      document.getElementById('modalUserId').textContent = `Telegram ID: ${userId}`;
-      document.getElementById('modalUsername').textContent = `Username: ${username}`;
-      modal.style.display = 'flex';
+    tonConnect.onStatusChange(wallet => {
+      if (wallet && wallet.account) {
+        document.getElementById('walletAddress').textContent = `Connected: ${wallet.account.address}`;
+      }
+    });
 
-      document.getElementById('cancelPurchase').onclick = () => {
-        modal.style.display = 'none';
-      };
-
-      document.getElementById('confirmPurchase').onclick = async () => {
-        document.getElementById('loadingSpinner').style.display = 'inline-block';
-        setTimeout(() => {
-          document.getElementById('loadingSpinner').style.display = 'none';
-          modal.style.display = 'none';
-          alert('Purchase confirmed! (Simulation)');
-        }, 1500);
-      };
-    }
-
-    window.onload = loadCardDetails;
+    loadCards();
   </script>
+
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: #111;
+      color: white;
+      text-align: center;
+    }
+
+    .wallet-connect {
+      margin-top: 20px;
+    }
+
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 40px;
+    }
+
+    .card {
+      background: #222;
+      margin: 15px;
+      padding: 15px;
+      border-radius: 10px;
+      width: 200px;
+    }
+
+    .card img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .buyBtn {
+      margin-top: 10px;
+      padding: 10px;
+      background: #00aaff;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: #222;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 40px;
+      font-size: 30px;
+      cursor: pointer;
+    }
+  </style>
 </body>
 </html>
