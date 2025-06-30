@@ -1,179 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Collectible Cards</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notcoin Card Details</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      background-color: #000;
-      color: #fff;
-      font-family: sans-serif;
-      padding: 10px;
-      display: flex;
-      justify-content: center;
+    body { background-color: #000; color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+    .container { display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
+    .card-box {
+      background-color: #1c1c1e;
+      border-radius: 18px;
+      width: 90%; max-width: 400px;
+      box-shadow: 0 0 12px rgba(255,255,255,0.05);
+      overflow: hidden; text-align: center;
+      padding-bottom: 20px;
     }
-    .container {
-      width: 100%;
-      max-width: 800px;
+    .card-box img { width: 50%; display: block; margin: 20px auto 0; }
+    .card-title { font-size: 22px; font-weight: 600; margin: 16px 0 6px; }
+    .card-desc { font-size: 14px; color: #aaa; margin-bottom: 16px; }
+    .buy-controls {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 10px; margin-bottom: 16px;
     }
-    .search-wrapper {
-      position: relative;
-      width: 100%;
-      margin-bottom: 30px;
-    }
-    .search-bar {
-      width: 100%;
-      padding: 10px 15px 10px 40px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      background-color: #111;
-      color: #fff;
-      box-sizing: border-box;
-    }
-    .search-icon {
-      position: absolute;
-      left: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 15px;
-      height: 15px;
-      pointer-events: none;
-      filter: brightness(0) invert(0.5);
-    }
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-      gap: 10px;
-    }
-    .card {
-      background-color: #111;
-      padding: 10px;
-      border-radius: 12px;
-      text-align: center;
-      transition: 0.3s;
-      cursor: pointer;
-      position: relative;
-    }
-    .card img {
-      width: 100%;
-      border-radius: 10px;
-    }
-    .name {
-      margin-top: 8px;
+    .select-quantity {
+      padding: 8px 12px; border-radius: 8px; font-size: 14px;
+      background-color: #2c2c2e; color: white;
+      border: none; width: 120px; text-align: center;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23ccc' d='M2 0L0 2h4L2 0zM2 5L0 3h4L2 5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 8px center;
+      background-size: 10px; padding-right: 24px;
+      appearance: none; -webkit-appearance: none; -moz-appearance: none;
       font-weight: bold;
     }
-    .rarity {
-      font-size: 14px;
-      margin-top: 4px;
+    .buy-btn {
+      width: 80%; background-color: #00aaff; color: white;
+      padding: 12px 20px; font-size: 15px; font-weight: 600;
+      border: none; border-radius: 12px; cursor: pointer;
     }
+    .buy-btn:hover { background-color: #008ecc; }
+    .details-box {
+      background-color: #1c1c1e;
+      border-radius: 18px; width: 80%; max-width: 400px;
+      margin-top: 20px; padding: 20px;
+      box-shadow: 0 0 12px rgba(255,255,255,0.05);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    td {
+      padding: 12px 0; border-top: 1px solid #333;
+      font-size: 14px;
+    }
+    tr:first-child td { border-top: none; }
+    .label { color: #999; text-align: left; }
+    .value { text-align: right; color: white; }
     .Legendary { color: gold; }
     .Epic { color: #9c27b0; }
     .Rare { color: #2196f3; }
     .Common { color: #aaa; }
-    .price-tag {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      background-color: #ff9800;
-      color: #000;
-      padding: 2px 6px;
-      font-size: 12px;
-      border-radius: 6px;
-      font-weight: bold;
-    }
     .error-message {
-      text-align: center;
-      color: red;
-      font-size: 18px;
+      text-align: center; color: red; font-size: 18px;
     }
+    .modal {
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000; justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background-color: #1c1c1e; border-radius: 12px; padding: 20px;
+      width: 80%; max-width: 400px; text-align: center;
+    }
+    .modal-content h2 { font-size: 20px; font-weight: 600; }
+    .modal-content p { font-size: 14px; color: #ccc; margin: 10px 0; }
+    .modal-buttons {
+      display: flex; justify-content: space-around; margin-top: 20px;
+    }
+    .modal-btn {
+      padding: 10px 20px; border: none;
+      border-radius: 8px; font-size: 14px; cursor: pointer;
+    }
+    .confirm-btn { background-color: #00aaff; color: white; }
+    .confirm-btn:hover { background-color: #008ecc; }
+    .cancel-btn { background-color: #555; color: white; }
+    .cancel-btn:hover { background-color: #444; }
+    .loading {
+      display: inline-block; width: 16px; height: 16px;
+      border: 3px solid #fff; border-radius: 50%;
+      border-top-color: transparent; animation: spin 1s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
   <div class="container" id="mainContainer"></div>
 
+  <div id="confirmModal" class="modal">
+    <div class="modal-content">
+      <h2>Confirm Purchase</h2>
+      <p id="modalCardName"></p>
+      <p id="modalCardDesc"></p>
+      <p id="modalQuantity"></p>
+      <p id="modalTotalPrice"></p>
+      <p id="modalUserId"></p>
+      <p id="modalUsername"></p>
+      <div class="modal-buttons">
+        <button id="confirmPurchase" class="modal-btn confirm-btn">
+          Confirm <span id="loadingSpinner" class="loading" style="display:none;"></span>
+        </button>
+        <button id="cancelPurchase" class="modal-btn cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    let userId = '';
-    let username = '';
+    let currentCard = null;
+    let userId = null;
+    let username = null;
 
-    window.onload = () => {
-      const tg = window.Telegram.WebApp;
-      const tgUser = tg.initDataUnsafe?.user;
-
-      if (!tgUser) {
-        document.body.innerHTML = "<h2 style='color:red;text-align:center'>Access denied. Please open via Telegram bot.</h2>";
-        return;
-      }
-
-      userId = tgUser.id;
-      username = tgUser.username || "unknown";
-
-      loadCards();
-    };
-
-    async function loadCards() {
+    async function loadCardDetails() {
       try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const cardId = urlParams.get('card');
+        userId = urlParams.get('user_id');
+        username = urlParams.get('username');
+
+        if (!userId || !username) {
+          document.getElementById('mainContainer').innerHTML = '<p class="error-message">❌ Access is only allowed via Telegram bot.</p>';
+          return;
+        }
+
         const response = await fetch('./cards.json');
         const cards = await response.json();
-        const cardGrid = document.createElement('div');
-        cardGrid.className = 'card-grid';
-        cardGrid.id = 'cardGrid';
+        currentCard = cards.find(c => c.id === cardId);
 
-        const searchWrapper = document.createElement('div');
-        searchWrapper.className = 'search-wrapper';
-        searchWrapper.innerHTML = `
-          <input type="search" class="search-bar" placeholder="Search cards..." oninput="filterCards(this.value)">
-          <img class="search-icon" src="https://cdn-icons-png.flaticon.com/512/622/622669.png" alt="Search">
+        if (!currentCard) {
+          document.getElementById('mainContainer').innerHTML = '<p class="error-message">Card not found.</p>';
+          return;
+        }
+
+        document.getElementById('mainContainer').innerHTML = `
+          <div class="card-box">
+            <img src="${currentCard.image}" alt="${currentCard.name}">
+            <div class="card-title">${currentCard.name} #${Math.floor(Math.random() * 100000)}</div>
+            <div class="card-desc">${currentCard.description}</div>
+            <div class="buy-controls">
+              <span style="font-size: 13px; color: #ccc;">Select quantity to buy:</span>
+              <select id="quantitySelect" class="select-quantity"></select>
+            </div>
+            <button id="buyButton" class="buy-btn"></button>
+          </div>
+          <div class="details-box">
+            <table>
+              <tr><td class="label">Available</td><td class="value">${currentCard.available}</td></tr>
+              <tr><td class="label">Game</td><td class="value">${currentCard.game}</td></tr>
+              <tr><td class="label">Collection</td><td class="value">${currentCard.collection}</td></tr>
+              <tr><td class="label">Rarity</td><td class="value ${currentCard.rarity}">${currentCard.rarity}</td></tr>
+              <tr><td class="label">Type</td><td class="value">${currentCard.type}</td></tr>
+              <tr><td class="label">Issued</td><td class="value">${currentCard.issued}</td></tr>
+            </table>
+          </div>
         `;
-        document.getElementById('mainContainer').appendChild(searchWrapper);
-        document.getElementById('mainContainer').appendChild(cardGrid);
 
-        cards.forEach(card => {
-          const cardElement = document.createElement('div');
-          cardElement.className = 'card';
-          cardElement.setAttribute('data-name', card.id.toLowerCase());
-          const formattedPrice = card.price ? formatPrice(card.price) + ' NOTS' : 'Free';
-          cardElement.innerHTML = `
-            <div class="price-tag">${formattedPrice}</div>
-            <img src="${card.image}" alt="${card.name}">
-            <div class="name">${card.name}</div>
-            <div class="rarity ${card.rarity}">${card.rarity}</div>
-          `;
-          cardElement.addEventListener('click', () => {
-            const nanoTON = card.price * 1_000_000_000;
-            const comment = `Buy ${card.name} - TG: ${username} (${userId})`;
-            const tonURL = `ton://transfer/UQBaajZGLHM9bZivtch2jTw2tILBPIiQPIKOGL_nOlksI-YZ?amount=${nanoTON}&text=${encodeURIComponent(comment)}`;
-            window.open(tonURL, '_blank');
-          });
-          cardGrid.appendChild(cardElement);
+        const select = document.getElementById('quantitySelect');
+        for (let i = 1; i <= currentCard.available; i++) {
+          const option = document.createElement('option');
+          option.value = i;
+          option.textContent = i;
+          select.appendChild(option);
+        }
+
+        const button = document.getElementById('buyButton');
+        select.addEventListener('change', function () {
+          const qty = parseInt(this.value);
+          const total = (qty * currentCard.price).toFixed(2);
+          button.textContent = `Buy for ${total} TON`;
+        });
+
+        select.value = 1;
+        select.dispatchEvent(new Event('change'));
+
+        button.addEventListener('click', () => {
+          const qty = parseInt(select.value);
+          const total = (qty * currentCard.price).toFixed(2);
+          showConfirmModal(currentCard.name, currentCard.description, qty, total, userId, username);
         });
       } catch (error) {
-        console.error('Error loading cards:', error);
-        document.getElementById('mainContainer').innerHTML = '<p class="error-message">Failed to load cards. Please try again later.</p>';
+        console.error('Error loading card details:', error);
+        document.getElementById('mainContainer').innerHTML = '<p class="error-message">Failed to load card details. Please try again later.</p>';
       }
     }
 
-    function formatPrice(price) {
-      price = Number(price);
-      if (price >= 1_000_000) {
-        return (price / 1_000_000).toFixed(price % 1_000_000 === 0 ? 0 : 1) + 'M';
-      } else if (price >= 1_000) {
-        return (price / 1_000).toFixed(price % 1_000 === 0 ? 0 : 1) + 'K';
-      } else {
-        return price.toString();
-      }
-    }
+    function showConfirmModal(cardName, cardDesc, quantity, totalPrice, userId, username) {
+  const modal = document.getElementById('confirmModal');
+  document.getElementById('modalCardName').textContent = `Card: ${cardName}`;
+  document.getElementById('modalCardDesc').textContent = `Description: ${cardDesc}`;
+  document.getElementById('modalQuantity').textContent = `Quantity: ${quantity}`;
+  document.getElementById('modalTotalPrice').textContent = `Total Price: ${totalPrice} TON`;
+  document.getElementById('modalUserId').textContent = `Telegram ID: ${userId}`;
+  document.getElementById('modalUsername').textContent = `Username: ${username}`;
+  modal.style.display = 'flex';
 
-    function filterCards(query) {
-      query = query.toLowerCase();
-      const cards = document.querySelectorAll('#cardGrid .card');
-      cards.forEach(card => {
-        const name = card.getAttribute('data-name');
-        card.style.display = name.includes(query) ? 'block' : 'none';
-      });
-    }
+  document.getElementById('cancelPurchase').onclick = () => {
+    modal.style.display = 'none';
+  };
+
+  document.getElementById('confirmPurchase').onclick = () => {
+    const walletAddress = 'UQBaajZGLHM9bZivtch2jTw2tILBPIiQPIKOGL_nOlksI-YZ';
+    const amountNanoTon = Number(totalPrice) * 1_000_000_000;
+
+    const paymentUrl = `ton://transfer/${walletAddress}?amount=${amountNanoTon}&text=${encodeURIComponent(`Buy ${quantity}x ${cardName} by @${username}`)}`;
+
+    window.open(paymentUrl, '_blank');
+  };
+}
+    window.onload = loadCardDetails;
   </script>
 </body>
 </html>
