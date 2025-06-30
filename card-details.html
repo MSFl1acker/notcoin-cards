@@ -118,9 +118,37 @@
   let currentCard = null;
   let userId = null;
   let username = null;
+  let tgWebApp = null;
+
+  function initTelegramWebApp() {
+    if (window.Telegram && Telegram.WebApp) {
+      tgWebApp = Telegram.WebApp;
+      tgWebApp.expand();
+      tgWebApp.enableClosingConfirmation();
+      tgWebApp.BackButton.show();
+      tgWebApp.BackButton.onClick(handleBackButton);
+      tgWebApp.onEvent('backButtonClicked', handleBackButton);
+    }
+  }
+
+  function handleBackButton() {
+    if (tgWebApp) {
+      // در محیط تلگرام - به جای بستن، به صفحه اصلی برمی‌گردیم
+      tgWebApp.sendData(JSON.stringify({action: 'navigate_back'}));
+    } else {
+      // در مرورگر معمولی
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+  }
 
   async function loadCardDetails() {
     try {
+      initTelegramWebApp();
+      
       const urlParams = new URLSearchParams(window.location.search);
       const cardId = urlParams.get('card');
       userId = urlParams.get('user_id');
@@ -172,7 +200,7 @@
       }
 
       const button = document.getElementById('buyButton');
-      select.addEventListener('change', function () {
+      select.addEventListener('change', function() {
         const qty = parseInt(this.value);
         const total = (qty * currentCard.price).toFixed(2);
         button.textContent = `Buy for ${total} TON`;
@@ -186,6 +214,7 @@
         const total = (qty * currentCard.price).toFixed(2);
         showConfirmModal(currentCard.name, currentCard.description, qty, total, userId, username);
       });
+
     } catch (error) {
       console.error('Error loading card details:', error);
       document.getElementById('mainContainer').innerHTML = '<p class="error-message">Failed to load card details. Please try again later.</p>';
@@ -214,17 +243,7 @@
     };
   }
 
-  window.onload = () => {
-    loadCardDetails();
-
-    if (window.Telegram && Telegram.WebApp) {
-      const BackButton = Telegram.WebApp.BackButton;
-      BackButton.show();
-      BackButton.onClick(() => {
-        Telegram.WebApp.close();
-      });
-    }
-  };
+  window.onload = loadCardDetails;
 </script>
 </body>
 </html>
