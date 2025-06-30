@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Collectible Cards in Notcoin</title>
+  <meta charset="UTF-8">
+  <title>Collectible Cards</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
@@ -10,7 +10,6 @@
       color: #fff;
       font-family: sans-serif;
       padding: 10px;
-      margin: 0;
       display: flex;
       justify-content: center;
     }
@@ -18,16 +17,11 @@
       width: 100%;
       max-width: 800px;
     }
-
     .search-wrapper {
       position: relative;
       width: 100%;
-      margin-top: 20px;
-      margin-bottom: 20px;
-      padding: 0 15px;
-      box-sizing: border-box;
+      margin-bottom: 30px;
     }
-
     .search-bar {
       width: 100%;
       padding: 10px 15px 10px 40px;
@@ -38,31 +32,22 @@
       background-color: #111;
       color: #fff;
       box-sizing: border-box;
-      transition: background-color 0.3s ease;
     }
-
-    .search-bar:focus {
-      background-color: #1c1c1c;
-    }
-
     .search-icon {
       position: absolute;
-      left: 25px;
+      left: 15px;
       top: 50%;
       transform: translateY(-50%);
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
       pointer-events: none;
       filter: brightness(0) invert(0.5);
-      opacity: 0.7;
     }
-
     .card-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
       gap: 10px;
     }
-
     .card {
       background-color: #111;
       padding: 10px;
@@ -72,27 +57,22 @@
       cursor: pointer;
       position: relative;
     }
-
     .card img {
       width: 100%;
       border-radius: 10px;
     }
-
     .name {
       margin-top: 8px;
       font-weight: bold;
     }
-
     .rarity {
       font-size: 14px;
       margin-top: 4px;
     }
-
     .Legendary { color: gold; }
     .Epic { color: #9c27b0; }
     .Rare { color: #2196f3; }
     .Common { color: #aaa; }
-
     .price-tag {
       position: absolute;
       top: 8px;
@@ -104,7 +84,6 @@
       border-radius: 6px;
       font-weight: bold;
     }
-
     .error-message {
       text-align: center;
       color: red;
@@ -113,31 +92,31 @@
   </style>
 </head>
 <body>
-  <div class="container" id="mainContainer">
-    <p class="error-message" id="accessError" style="display:none;">❌ Access is only allowed via Telegram bot.</p>
-  </div>
+  <div class="container" id="mainContainer"></div>
 
   <script>
-    window.Telegram.WebApp.ready();
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-    tg.setBackgroundColor('#000000');
+    let userId = '';
+    let username = '';
 
-    const initDataUnsafe = tg.initDataUnsafe;
+    window.onload = () => {
+      const tg = window.Telegram.WebApp;
+      const tgUser = tg.initDataUnsafe?.user;
 
-    if (!initDataUnsafe || !initDataUnsafe.user || !initDataUnsafe.user.id) {
-      document.getElementById('accessError').style.display = 'block';
-    } else {
-      const userId = initDataUnsafe.user.id;
-      const username = initDataUnsafe.user.username || 'unknown';
-      loadCards(userId, username);
-    }
+      if (!tgUser) {
+        document.body.innerHTML = "<h2 style='color:red;text-align:center'>Access denied. Please open via Telegram bot.</h2>";
+        return;
+      }
 
-    async function loadCards(userId, username) {
+      userId = tgUser.id;
+      username = tgUser.username || "unknown";
+
+      loadCards();
+    };
+
+    async function loadCards() {
       try {
         const response = await fetch('./cards.json');
         const cards = await response.json();
-
         const cardGrid = document.createElement('div');
         cardGrid.className = 'card-grid';
         cardGrid.id = 'cardGrid';
@@ -145,40 +124,31 @@
         const searchWrapper = document.createElement('div');
         searchWrapper.className = 'search-wrapper';
         searchWrapper.innerHTML = `
-          <input type="search" class="search-bar" placeholder="Search Collectible Cards">
+          <input type="search" class="search-bar" placeholder="Search cards..." oninput="filterCards(this.value)">
           <img class="search-icon" src="https://cdn-icons-png.flaticon.com/512/622/622669.png" alt="Search">
         `;
-
-        const container = document.getElementById('mainContainer');
-        container.innerHTML = '';
-        container.appendChild(searchWrapper);
-        container.appendChild(cardGrid);
-
-        const searchInput = searchWrapper.querySelector('.search-bar');
-        searchInput.addEventListener('input', (e) => {
-          filterCards(e.target.value);
-        });
+        document.getElementById('mainContainer').appendChild(searchWrapper);
+        document.getElementById('mainContainer').appendChild(cardGrid);
 
         cards.forEach(card => {
           const cardElement = document.createElement('div');
           cardElement.className = 'card';
           cardElement.setAttribute('data-name', card.id.toLowerCase());
-
-          const formattedPrice = card.price ? formatPrice(card.price) + ' TON' : 'Free';
+          const formattedPrice = card.price ? formatPrice(card.price) + ' NOTS' : 'Free';
           cardElement.innerHTML = `
             <div class="price-tag">${formattedPrice}</div>
             <img src="${card.image}" alt="${card.name}">
             <div class="name">${card.name}</div>
             <div class="rarity ${card.rarity}">${card.rarity}</div>
           `;
-
           cardElement.addEventListener('click', () => {
-            window.location.href = `card-details.html?card=${encodeURIComponent(card.id)}&user_id=${encodeURIComponent(userId)}&username=${encodeURIComponent(username)}`;
+            const nanoTON = card.price * 1_000_000_000;
+            const comment = `Buy ${card.name} - TG: ${username} (${userId})`;
+            const tonURL = `ton://transfer/UQBaajZGLHM9bZivtch2jTw2tILBPIiQPIKOGL_nOlksI-YZ?amount=${nanoTON}&text=${encodeURIComponent(comment)}`;
+            window.open(tonURL, '_blank');
           });
-
           cardGrid.appendChild(cardElement);
         });
-
       } catch (error) {
         console.error('Error loading cards:', error);
         document.getElementById('mainContainer').innerHTML = '<p class="error-message">Failed to load cards. Please try again later.</p>';
@@ -204,9 +174,6 @@
         card.style.display = name.includes(query) ? 'block' : 'none';
       });
     }
-
-    
-    window.filterCards = filterCards;
   </script>
 </body>
 </html>
