@@ -1,186 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TON NFT Marketplace</title>
-  <link rel="stylesheet" href="style.css"/>
-  <script src="https://unpkg.com/@tonconnect/sdk@latest"></script>
-</head>
-<body>
-  <div class="wallet-connect">
-    <button id="connectWalletBtn">🔌 Connect Wallet</button>
-    <p id="walletAddress"></p>
-  </div>
-
-  <div class="card-container" id="cardContainer"></div>
-
-  <!-- Modal -->
-  <div id="modal" class="modal hidden">
-    <div class="modal-content">
-      <span class="close" id="closeModal">&times;</span>
-      <h2 id="modalTitle"></h2>
-      <p id="modalPrice"></p>
-      <button id="confirmBtn">✅ Confirm Purchase</button>
-    </div>
-  </div>
-
-  <script>
-    const cardsDataPath = './cards.json';
-    const recipientAddress = 'UQBaajZGLHM9bZivtch2jTw2tILBPIiQPIKOGL_nOlksI-YZ';
-
-    const tonConnect = new TON_CONNECT_UI.TonConnectUI({
-      manifestUrl: 'https://YOUR_DOMAIN/tonconnect-manifest.json',
-      buttonRootId: 'connectWalletBtn'
-    });
-
-    let selectedCard = null;
-
-    async function loadCards() {
-      const res = await fetch(cardsDataPath);
-      const cards = await res.json();
-      const container = document.getElementById('cardContainer');
-      cards.forEach(card => {
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'card';
-        cardDiv.innerHTML = `
-          <img src="${card.image}" alt="${card.name}" />
-          <h3>${card.name}</h3>
-          <p>${card.price} TON</p>
-          <button class="buyBtn">Buy</button>
-        `;
-        cardDiv.querySelector('.buyBtn').onclick = () => openModal(card);
-        container.appendChild(cardDiv);
-      });
-    }
-
-    function openModal(card) {
-      selectedCard = card;
-      document.getElementById('modalTitle').textContent = card.name;
-      document.getElementById('modalPrice').textContent = `Price: ${card.price} TON`;
-      document.getElementById('modal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-      document.getElementById('modal').classList.add('hidden');
-    }
-
-    document.getElementById('closeModal').onclick = closeModal;
-
-    function textToBase64Comment(text) {
-      const encoder = new TextEncoder();
-      const bytes = encoder.encode(text);
-      const payload = new Uint8Array([0, bytes.length, ...bytes]); // Simple comment format (type: 0x00)
-      return btoa(String.fromCharCode(...payload));
-    }
-
-    document.getElementById('confirmBtn').onclick = async () => {
-      if (!selectedCard) return;
-
-      const tonNano = BigInt(parseFloat(selectedCard.price) * 1e9);
-      const comment = `Buy NFT: ${selectedCard.name} | Price: ${selectedCard.price} TON`;
-      const payloadBase64 = textToBase64Comment(comment);
-
-      const tx = {
-        validUntil: Math.floor(Date.now() / 1000) + 300,
-        messages: [
-          {
-            address: recipientAddress,
-            amount: tonNano.toString(),
-            payload: payloadBase64
-          }
-        ]
-      };
-
-      try {
-        await tonConnect.sendTransaction(tx);
-        alert('✅ Payment sent with comment!');
-        closeModal();
-      } catch (err) {
-        alert('❌ Payment failed.');
-      }
-    };
-
-    tonConnect.onStatusChange(wallet => {
-      if (wallet && wallet.account) {
-        document.getElementById('walletAddress').textContent = `Connected: ${wallet.account.address}`;
-      }
-    });
-
-    loadCards();
-  </script>
-
+  <meta charset="UTF-8">
+  <title>Collectible Cards</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
-      font-family: Arial;
-      margin: 0;
-      background: #111;
-      color: white;
-      text-align: center;
-    }
-
-    .wallet-connect {
-      margin-top: 20px;
-    }
-
-    .card-container {
+      background-color: #000;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 10px;
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
-      margin-top: 40px;
     }
-
-    .card {
-      background: #222;
-      margin: 15px;
-      padding: 15px;
+    .container {
+      width: 100%;
+      max-width: 800px;
+    }
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+      margin-bottom: 30px;
+    }
+    .search-bar {
+      width: 100%;
+      padding: 10px 15px 10px 40px;
+      font-size: 16px;
       border-radius: 10px;
-      width: 200px;
+      border: none;
+      outline: none;
+      background-color: #111;
+      color: #fff;
+      box-sizing: border-box;
     }
-
+    .search-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 15px;
+      pointer-events: none;
+      filter: brightness(0) invert(0.5);
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+    }
+    .card {
+      background-color: #111;
+      padding: 10px;
+      border-radius: 12px;
+      text-align: center;
+      transition: 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
     .card img {
       width: 100%;
       border-radius: 10px;
     }
-
-    .buyBtn {
-      margin-top: 10px;
-      padding: 10px;
-      background: #00aaff;
-      border: none;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
+    .name {
+      margin-top: 8px;
+      font-weight: bold;
     }
-
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .rarity {
+      font-size: 14px;
+      margin-top: 4px;
     }
-
-    .modal.hidden {
-      display: none;
-    }
-
-    .modal-content {
-      background: #222;
-      padding: 30px;
-      border-radius: 10px;
-      text-align: center;
-    }
-
-    .close {
+    .Legendary { color: gold; }
+    .Epic { color: #9c27b0; }
+    .Rare { color: #2196f3; }
+    .Common { color: #aaa; }
+    .price-tag {
       position: absolute;
-      top: 20px;
-      right: 40px;
-      font-size: 30px;
-      cursor: pointer;
+      top: 8px;
+      left: 8px;
+      background-color: #ff9800;
+      color: #000;
+      padding: 2px 6px;
+      font-size: 12px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .error-message {
+      text-align: center;
+      color: red;
+      font-size: 18px;
     }
   </style>
+</head>
+<body>
+  <div class="container" id="mainContainer"></div>
+
+  <script>
+    let userId = '';
+    let username = '';
+
+    window.onload = () => {
+      const tg = window.Telegram.WebApp;
+      const tgUser = tg.initDataUnsafe?.user;
+
+      if (!tgUser) {
+        document.body.innerHTML = "<h2 style='color:red;text-align:center'>Access denied. Please open via Telegram bot.</h2>";
+        return;
+      }
+
+      userId = tgUser.id;
+      username = tgUser.username || "unknown";
+
+      loadCards();
+    };
+
+    async function loadCards() {
+      try {
+        const response = await fetch('./cards.json');
+        const cards = await response.json();
+        const cardGrid = document.createElement('div');
+        cardGrid.className = 'card-grid';
+        cardGrid.id = 'cardGrid';
+
+        const searchWrapper = document.createElement('div');
+        searchWrapper.className = 'search-wrapper';
+        searchWrapper.innerHTML = `
+          <input type="search" class="search-bar" placeholder="Search cards..." oninput="filterCards(this.value)">
+          <img class="search-icon" src="https://cdn-icons-png.flaticon.com/512/622/622669.png" alt="Search">
+        `;
+        document.getElementById('mainContainer').appendChild(searchWrapper);
+        document.getElementById('mainContainer').appendChild(cardGrid);
+
+        cards.forEach(card => {
+          const cardElement = document.createElement('div');
+          cardElement.className = 'card';
+          cardElement.setAttribute('data-name', card.id.toLowerCase());
+          const formattedPrice = card.price ? formatPrice(card.price) + ' NOTS' : 'Free';
+          cardElement.innerHTML = `
+            <div class="price-tag">${formattedPrice}</div>
+            <img src="${card.image}" alt="${card.name}">
+            <div class="name">${card.name}</div>
+            <div class="rarity ${card.rarity}">${card.rarity}</div>
+          `;
+          cardElement.addEventListener('click', () => {
+            const nanoTON = card.price * 1_000_000_000;
+            const comment = `Buy ${card.name} - TG: ${username} (${userId})`;
+            const tonURL = `ton://transfer/UQBaajZGLHM9bZivtch2jTw2tILBPIiQPIKOGL_nOlksI-YZ?amount=${nanoTON}&text=${encodeURIComponent(comment)}`;
+            window.open(tonURL, '_blank');
+          });
+          cardGrid.appendChild(cardElement);
+        });
+      } catch (error) {
+        console.error('Error loading cards:', error);
+        document.getElementById('mainContainer').innerHTML = '<p class="error-message">Failed to load cards. Please try again later.</p>';
+      }
+    }
+
+    function formatPrice(price) {
+      price = Number(price);
+      if (price >= 1_000_000) {
+        return (price / 1_000_000).toFixed(price % 1_000_000 === 0 ? 0 : 1) + 'M';
+      } else if (price >= 1_000) {
+        return (price / 1_000).toFixed(price % 1_000 === 0 ? 0 : 1) + 'K';
+      } else {
+        return price.toString();
+      }
+    }
+
+    function filterCards(query) {
+      query = query.toLowerCase();
+      const cards = document.querySelectorAll('#cardGrid .card');
+      cards.forEach(card => {
+        const name = card.getAttribute('data-name');
+        card.style.display = name.includes(query) ? 'block' : 'none';
+      });
+    }
+  </script>
 </body>
 </html>
