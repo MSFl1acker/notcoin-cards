@@ -114,117 +114,117 @@
     </div>
   </div>
 
-  <script>
-    let currentCard = null;
-    let userId = null;
-    let username = null;
+<script>
+  let currentCard = null;
+  let userId = null;
+  let username = null;
 
-    async function loadCardDetails() {
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const cardId = urlParams.get('card');
-        userId = urlParams.get('user_id');
-        username = urlParams.get('username');
+  async function loadCardDetails() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const cardId = urlParams.get('card');
+      userId = urlParams.get('user_id');
+      username = urlParams.get('username');
 
-        if (!userId || !username) {
-          document.getElementById('mainContainer').innerHTML = '<p class="error-message">❌ Access is only allowed via Telegram bot.</p>';
-          return;
-        }
-
-        const response = await fetch('./cards.json');
-        const cards = await response.json();
-        currentCard = cards.find(c => c.id === cardId);
-
-        if (!currentCard) {
-          document.getElementById('mainContainer').innerHTML = '<p class="error-message">Card not found.</p>';
-          return;
-        }
-
-        document.getElementById('mainContainer').innerHTML = `
-          <div class="card-box">
-            <img src="${currentCard.image}" alt="${currentCard.name}">
-            <div class="card-title">${currentCard.name} #${Math.floor(Math.random() * 100000)}</div>
-            <div class="card-desc">${currentCard.description}</div>
-            <div class="buy-controls">
-              <span style="font-size: 13px; color: #ccc;">Select quantity to buy:</span>
-              <select id="quantitySelect" class="select-quantity"></select>
-            </div>
-            <button id="buyButton" class="buy-btn"></button>
-          </div>
-          <div class="details-box">
-            <table>
-              <tr><td class="label">Available</td><td class="value">${currentCard.available}</td></tr>
-              <tr><td class="label">Game</td><td class="value">${currentCard.game}</td></tr>
-              <tr><td class="label">Collection</td><td class="value">${currentCard.collection}</td></tr>
-              <tr><td class="label">Rarity</td><td class="value ${currentCard.rarity}">${currentCard.rarity}</td></tr>
-              <tr><td class="label">Type</td><td class="value">${currentCard.type}</td></tr>
-              <tr><td class="label">Issued</td><td class="value">${currentCard.issued}</td></tr>
-            </table>
-          </div>
-        `;
-
-        const select = document.getElementById('quantitySelect');
-        for (let i = 1; i <= currentCard.available; i++) {
-          const option = document.createElement('option');
-          option.value = i;
-          option.textContent = i;
-          select.appendChild(option);
-        }
-
-        const button = document.getElementById('buyButton');
-        select.addEventListener('change', function () {
-          const qty = parseInt(this.value);
-          const total = (qty * currentCard.price).toFixed(2);
-          button.textContent = `Buy for ${total} TON`;
-        });
-
-        select.value = 1;
-        select.dispatchEvent(new Event('change'));
-
-        button.addEventListener('click', () => {
-          const qty = parseInt(select.value);
-          const total = (qty * currentCard.price).toFixed(2);
-          showConfirmModal(currentCard.name, currentCard.description, qty, total, userId, username);
-        });
-      } catch (error) {
-        console.error('Error loading card details:', error);
-        document.getElementById('mainContainer').innerHTML = '<p class="error-message">Failed to load card details. Please try again later.</p>';
+      if (!userId || !username) {
+        document.getElementById('mainContainer').innerHTML = '<p class="error-message">❌ Access is only allowed via Telegram bot.</p>';
+        return;
       }
-    }
 
-    function showConfirmModal(cardName, cardDesc, quantity, totalPrice, userId, username) {
-      const modal = document.getElementById('confirmModal');
-      document.getElementById('modalCardName').textContent = `Card: ${cardName}`;
-      document.getElementById('modalCardDesc').textContent = `Description: ${cardDesc}`;
-      document.getElementById('modalQuantity').textContent = `Quantity: ${quantity}`;
-      document.getElementById('modalTotalPrice').textContent = `Total Price: ${totalPrice} TON`;
-      document.getElementById('modalUserId').textContent = `Telegram ID: ${userId}`;
-      document.getElementById('modalUsername').textContent = `Username: ${username}`;
-      modal.style.display = 'flex';
+      const response = await fetch('./cards.json');
+      const cards = await response.json();
+      currentCard = cards.find(c => c.id === cardId);
 
-      document.getElementById('cancelPurchase').onclick = () => {
-        modal.style.display = 'none';
-      };
-
-      document.getElementById('confirmPurchase').onclick = () => {
-        const walletAddress = 'UQBaajZGLHM9bZivtch2jTw2tILBPIiQPIKOGL_nOlksI-YZ';
-        const amountNanoTon = Number(totalPrice) * 1_000_000_000;
-        const paymentUrl = `ton://transfer/${walletAddress}?amount=${amountNanoTon}&text=${encodeURIComponent(`Buy ${quantity}x ${cardName} by @${username}`)}`;
-        window.open(paymentUrl, '_blank');
-      };
-    }
-
-    window.onload = () => {
-      loadCardDetails();
-
-      // Telegram Back Button setup
-      if (window.Telegram && Telegram.WebApp) {
-        Telegram.WebApp.BackButton.show();
-        Telegram.WebApp.BackButton.onClick(() => {
-          Telegram.WebApp.close();
-        });
+      if (!currentCard) {
+        document.getElementById('mainContainer').innerHTML = '<p class="error-message">Card not found.</p>';
+        return;
       }
+
+      document.getElementById('mainContainer').innerHTML = `
+        <div class="card-box">
+          <img src="${currentCard.image}" alt="${currentCard.name}">
+          <div class="card-title">${currentCard.name} #${Math.floor(Math.random() * 100000)}</div>
+          <div class="card-desc">${currentCard.description}</div>
+          <div class="buy-controls">
+            <span style="font-size: 13px; color: #ccc;">Select quantity to buy:</span>
+            <select id="quantitySelect" class="select-quantity"></select>
+          </div>
+          <button id="buyButton" class="buy-btn"></button>
+        </div>
+        <div class="details-box">
+          <table>
+            <tr><td class="label">Available</td><td class="value">${currentCard.available}</td></tr>
+            <tr><td class="label">Game</td><td class="value">${currentCard.game}</td></tr>
+            <tr><td class="label">Collection</td><td class="value">${currentCard.collection}</td></tr>
+            <tr><td class="label">Rarity</td><td class="value ${currentCard.rarity}">${currentCard.rarity}</td></tr>
+            <tr><td class="label">Type</td><td class="value">${currentCard.type}</td></tr>
+            <tr><td class="label">Issued</td><td class="value">${currentCard.issued}</td></tr>
+          </table>
+        </div>
+      `;
+
+      const select = document.getElementById('quantitySelect');
+      for (let i = 1; i <= currentCard.available; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        select.appendChild(option);
+      }
+
+      const button = document.getElementById('buyButton');
+      select.addEventListener('change', function () {
+        const qty = parseInt(this.value);
+        const total = (qty * currentCard.price).toFixed(2);
+        button.textContent = `Buy for ${total} TON`;
+      });
+
+      select.value = 1;
+      select.dispatchEvent(new Event('change'));
+
+      button.addEventListener('click', () => {
+        const qty = parseInt(select.value);
+        const total = (qty * currentCard.price).toFixed(2);
+        showConfirmModal(currentCard.name, currentCard.description, qty, total, userId, username);
+      });
+    } catch (error) {
+      console.error('Error loading card details:', error);
+      document.getElementById('mainContainer').innerHTML = '<p class="error-message">Failed to load card details. Please try again later.</p>';
+    }
+  }
+
+  function showConfirmModal(cardName, cardDesc, quantity, totalPrice, userId, username) {
+    const modal = document.getElementById('confirmModal');
+    document.getElementById('modalCardName').textContent = `Card: ${cardName}`;
+    document.getElementById('modalCardDesc').textContent = `Description: ${cardDesc}`;
+    document.getElementById('modalQuantity').textContent = `Quantity: ${quantity}`;
+    document.getElementById('modalTotalPrice').textContent = `Total Price: ${totalPrice} TON`;
+    document.getElementById('modalUserId').textContent = `Telegram ID: ${userId}`;
+    document.getElementById('modalUsername').textContent = `Username: ${username}`;
+    modal.style.display = 'flex';
+
+    document.getElementById('cancelPurchase').onclick = () => {
+      modal.style.display = 'none';
     };
-  </script>
+
+    document.getElementById('confirmPurchase').onclick = () => {
+      const walletAddress = 'UQBaajZGLHM9bZivtch2jTw2tILBPIiQPIKOGL_nOlksI-YZ';
+      const amountNanoTon = Number(totalPrice) * 1_000_000_000;
+      const paymentUrl = `ton://transfer/${walletAddress}?amount=${amountNanoTon}&text=${encodeURIComponent(`Buy ${quantity}x ${cardName} by @${username}`)}`;
+      window.open(paymentUrl, '_blank');
+    };
+  }
+
+  window.onload = () => {
+    loadCardDetails();
+
+    if (window.Telegram && Telegram.WebApp) {
+      const BackButton = Telegram.WebApp.BackButton;
+      BackButton.show();
+      BackButton.onClick(() => {
+        Telegram.WebApp.close();
+      });
+    }
+  };
+</script>
 </body>
 </html>
