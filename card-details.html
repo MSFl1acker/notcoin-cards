@@ -132,8 +132,19 @@
         // Expand the WebApp to full view
         webApp.expand();
       }
-    });
+    
+  const tg = window.Telegram.WebApp;
 
+  // تنظیم رنگ پس‌زمینه کل صفحه (از سمت تلگرام)
+  tg.setBackgroundColor("#ff5722"); // رنگ دلخواه، مثلاً نارنجی
+
+  // تنظیم رنگ نوار بالایی (Header) داخل تلگرام
+  tg.setHeaderColor("bg_color"); // یا از "secondary_bg_color" هم می‌تونی استفاده کنی
+
+  // باز کردن وب‌اپ به حالت کامل
+  tg.expand();
+
+  
     let currentCard = null;
     let userId = null;
     let username = null;
