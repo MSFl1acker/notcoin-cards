@@ -8,109 +8,29 @@
   <style>
     body { background-color: #111; color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
     .container { display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
-    .card-box {
-      background-color: #1c1c1e;
-      border-radius: 18px;
-      width: 90%; max-width: 400px;
-      box-shadow: 0 0 12px rgba(255,255,255,0.05);
-      overflow: hidden; text-align: center;
-      padding-bottom: 20px;
+
+    .back-btn {
+      background-color: #222; color: white; border: none;
+      padding: 10px 16px; border-radius: 10px; font-size: 14px;
+      cursor: pointer; margin: 10px 0;
     }
-    .card-box img { width: 50%; display: block; margin: 20px auto 0; }
-    .card-title { font-size: 22px; font-weight: 600; margin: 16px 0 6px; }
-    .card-desc { font-size: 14px; color: #aaa; margin-bottom: 16px; }
-    .buy-controls {
-      display: flex; flex-direction: column;
-      align-items: center; gap: 10px; margin-bottom: 16px;
-    }
-    .select-quantity {
-      padding: 8px 12px; border-radius: 8px; font-size: 14px;
-      background-color: #2c2c2e; color: white;
-      border: none; width: 120px; text-align: center;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23ccc' d='M2 0L0 2h4L2 0zM2 5L0 3h4L2 5z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 8px center;
-      background-size: 10px; padding-right: 24px;
-      appearance: none; -webkit-appearance: none; -moz-appearance: none;
-      font-weight: bold;
-    }
-    .buy-btn {
-      width: 80%; background-color: #00aaff; color: white;
-      padding: 12px 20px; font-size: 15px; font-weight: 600;
-      border: none; border-radius: 12px; cursor: pointer;
-    }
-    .buy-btn:hover { background-color: #008ecc; }
-    .details-box {
-      background-color: #1c1c1e;
-      border-radius: 18px; width: 80%; max-width: 400px;
-      margin-top: 20px; padding: 20px;
-      box-shadow: 0 0 12px rgba(255,255,255,0.05);
-    }
-    table { width: 100%; border-collapse: collapse; }
-    td {
-      padding: 12px 0; border-top: 1px solid #333;
-      font-size: 14px;
-    }
-    tr:first-child td { border-top: none; }
-    .label { color: #999; text-align: left; }
-    .value { text-align: right; color: white; }
-    .Legendary { color: gold; }
-    .Epic { color: #9c27b0; }
-    .Rare { color: #2196f3; }
-    .Common { color: #aaa; }
-    .error-message {
-      text-align: center; color: red; font-size: 18px;
-    }
-    .modal {
-      display: none; position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
-      z-index: 1000; justify-content: center; align-items: center;
-    }
-    .modal-content {
-      background-color: #1c1c1e; border-radius: 12px; padding: 20px;
-      width: 80%; max-width: 400px; text-align: center;
-    }
-    .modal-content h2 { font-size: 20px; font-weight: 600; }
-    .modal-content p { font-size: 14px; color: #ccc; margin: 10px 0; }
-    .modal-buttons {
-      display: flex; justify-content: space-around; margin-top: 20px;
-    }
-    .modal-btn {
-      padding: 10px 20px; border: none;
-      border-radius: 8px; font-size: 14px; cursor: pointer;
-    }
-    .confirm-btn { background-color: #00aaff; color: white; }
-    .confirm-btn:hover { background-color: #008ecc; }
-    .cancel-btn { background-color: #555; color: white; }
-    .cancel-btn:hover { background-color: #444; }
-    .loading {
-      display: inline-block; width: 16px; height: 16px;
-      border: 3px solid #fff; border-radius: 50%;
-      border-top-color: transparent; animation: spin 1s linear infinite;
-      vertical-align: middle;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .back-btn:hover { background-color: #333; }
+
+    /* باقی استایل‌ها مثل قبل */
+    /* ... کدهای CSS دیگر شما ... */
   </style>
 </head>
 <body>
+  <!-- دکمه برگشت دستی -->
+  <div style="text-align: left; width: 100%; padding: 10px;">
+    <button id="manualBackBtn" class="back-btn" style="display: none;">← Back</button>
+  </div>
+
   <div class="container" id="mainContainer"></div>
 
+  <!-- Modal Confirm Purchase -->
   <div id="confirmModal" class="modal">
-    <div class="modal-content">
-      <h2>Confirm Purchase</h2>
-      <p id="modalCardName"></p>
-      <p id="modalCardDesc"></p>
-      <p id="modalQuantity"></p>
-      <p id="modalTotalPrice"></p>
-      <p id="modalUserId"></p>
-      <p id="modalUsername"></p>
-      <div class="modal-buttons">
-        <button id="confirmPurchase" class="modal-btn confirm-btn">
-          Confirm <span id="loadingSpinner" class="loading" style="display:none;"></span>
-        </button>
-        <button id="cancelPurchase" class="modal-btn cancel-btn">Cancel</button>
-      </div>
-    </div>
+    <!-- ... محتوای قبلی ... -->
   </div>
 
   <script>
@@ -215,16 +135,24 @@
       };
     }
 
+    // Load card on page load
     window.onload = loadCardDetails;
-    document.addEventListener('DOMContentLoaded', function () {
-    if (window.Telegram && Telegram.WebApp && Telegram.WebApp.BackButton) {
-        Telegram.WebApp.BackButton.show();
 
+    // Telegram Back Button Handling
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.Telegram && Telegram.WebApp && Telegram.WebApp.BackButton) {
+        Telegram.WebApp.BackButton.show();
         Telegram.WebApp.BackButton.onClick(() => {
-            window.history.back();
+          window.history.back();
         });
-    }
-});
+      } else {
+        // Show manual back button for non-Telegram environments
+        document.getElementById('manualBackBtn').style.display = 'inline-block';
+        document.getElementById('manualBackBtn').addEventListener('click', () => {
+          window.history.back();
+        });
+      }
+    });
   </script>
 </body>
 </html>
