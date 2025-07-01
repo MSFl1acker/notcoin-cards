@@ -10,7 +10,8 @@
     "game": "Notcoin",
     "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 27037
+    "issued": 27037,
+    "hash": 25387
   },
   {
     "id": "cny",
@@ -23,7 +24,8 @@
     "game": "Notcoin",
     "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 38720
+    "issued": 38720,
+    "hash": 38720
   },
   {
     "id": "fallout",
@@ -36,7 +38,8 @@
     "game": "Notcoin",
     "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 51185
+    "issued": 51185,
+    "hash": 8694
   },
   {
     "id": "telegram",
@@ -49,7 +52,8 @@
     "game": "Notcoin",
     "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 45661
+    "issued": 45661,
+    "hash": 10341
   },
   {
     "id": "galleon",
@@ -62,7 +66,8 @@
     "game": "Notcoin",
     "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 118471
+    "issued": 118471,
+    "hash": 95821
   },
   {
     "id": "cookie",
@@ -75,7 +80,8 @@
     "game": "Notcoin",
     "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 72725
+    "issued": 72725,
+    "hash": 48153
   },
   {
     "id": "eclipse",
@@ -88,7 +94,8 @@
     "game": "Notcoin",
     "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 136654
+    "issued": 136654,
+    "hash": 61367
   },
   {
     "id": "catharsis",
@@ -101,7 +108,8 @@
     "game": "Notcoin",
     "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 105291
+    "issued": 105291,
+    "hash": 34946
   },
   {
     "id": "pizza",
@@ -114,7 +122,8 @@
     "game": "Notcoin",
     "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 355514
+    "issued": 355514,
+    "hash": 332735
   },
   {
     "id": "diamond",
@@ -127,7 +136,8 @@
     "game": "Notcoin",
     "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 380839
+    "issued": 380839,
+    "hash": 71956
   },
   {
     "id": "learn",
@@ -140,6 +150,7 @@
     "game": "Notcoin",
     "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 315202
+    "issued": 315202,
+    "hash": 88615
   }
 ]
