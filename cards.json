@@ -61,12 +61,12 @@
     "rarity": "Rare",
     "image": "https://not-platform-dev.fra1.cdn.digitaloceanspaces.com/item/ab0d47de-b73c-4d2b-b61a-6f4d5a8af0c3.png",
     "description": "A ship of treasure and adventure.",
-    "price": 0.23,
+    "price": 0.25,
     "available": 15,
     "game": "Notcoin",
     "collection": "Player Zeroes",
     "type": "Collectible Cards",
-    "issued": 118471,
+    "issued": 24482,
     "hash": 95821
   },
   {
